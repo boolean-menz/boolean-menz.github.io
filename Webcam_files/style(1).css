@@ -1,0 +1,47 @@
+﻿/*-----------------------------------------------------------------------------------
+
+	Theme Name: Multi News
+	Theme URI: http://www.momizat.com
+	Description: <strong>A responsive News/magazine theme</strong> - built on unlimited concept
+	Author: Momizat
+	Author URI: http://www.momizat.com
+	Version: 20.5.3
+
+	Tags: dark, light, white, black, gray, one-column, two-columns, left-sidebar, right-sidebar, fixed-layout, fluid-layout, custom-background, custom-colors, custom-header, custom-menu, editor-style, featured-image-header, featured-images, flexible-header, full-width-template, post-formats, rtl-language-support, sticky-post, theme-options, translation-ready
+
+
+
+License:
+License URI:
+
+General comments (optional).
+-----------------------------------------------------------------------------------------*/
+body{
+background-size:auto auto!important;
+}
+
+@media screen and (min-width: 900px) {
+	.header-wrap > .inner, .header-wrap{
+		background-image: url("//www.montescaglioso.net/wp-content/themes/multinews/images/background-header.png");
+	}
+}
+
+.td-noborder {
+    border: 1px solid white;
+    padding: 10px;
+    text-align: left;
+}
+.intrinsic-container {
+  position: relative;
+  height: 0;
+  overflow: hidden;
+}
+ 
+.intrinsic-container iframe {
+	padding-bottom: 56.25%;
+	position: absolute;
+	top:0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}

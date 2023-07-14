@@ -1,0 +1,130 @@
+var id = '61115358588';
+var timer = null;
+var loading = 0;
+
+function move(mydir){
+	showLoading();
+	jQuery.getJSON("https://api.montescaglioso.net/camcontrol/move",{dir : mydir, id: id}, callbackf);
+} 
+
+function preset() {
+	if(jQuery('#selectpreset').val() != 0){
+		showLoading();
+		jQuery.getJSON("https://api.montescaglioso.net/camcontrol/preset",{pos : jQuery('#selectpreset').val(), id: id}, callbackf);
+	}
+}
+
+
+function callbackf(data){
+	hideLoading();
+	$("#selectpreset").val('0');
+	if(data!=null && data.status!=null) {
+		if(data.status==-1)
+			alert(data.error);
+	}	
+}
+
+function showLoading() {
+	loading++;
+	if(loading>0)
+		jQuery('#loading').show();
+}
+
+function hideLoading(){
+	loading--;
+    if(loading<1)
+		jQuery('#loading').hide();
+}
+
+
+function getCamControl() {
+	jQuery('#ctrlbttn').attr('disabled','disabled');
+	showLoading();
+	jQuery('#statusmsg').html("Richiesta inviata");
+	jQuery.getJSON("https://api.montescaglioso.net/camcontrol/get",{cmd: 'get', id : id}, callback_get);
+}
+
+function ping() {
+	jQuery.getJSON("https://api.montescaglioso.net/camcontrol/get",{cmd: 'ping', id : id}, callback_ping);
+}
+
+function callback_get(data){
+	hideLoading();	
+	jQuery('#statusmsg').html("");
+	if(data!=null && data.coda!=null) {
+		if(data.coda>=0) {
+		        if(data.coda==0)
+                		enableControl();
+			else {
+				waitForControl(data.coda);
+				jQuery('#codamsg').fadeIn("slow");
+			}
+			timer = setTimeout("ping()",3000); 
+			return;
+		}
+	}
+	if(timer!=null)
+		clearTimeout(timer);
+	disableControl();
+	alert("Si e' verificato un errore. Riprova più tardi");
+}
+
+function callback_ping(data){
+	var msg = "Si e' verificato un errore. Riprova più tardi";
+        if(data!=null && data.coda!=null) {
+                if(data.coda>=0) {
+                        if(data.coda==0)
+                                enableControl();
+                        else
+                                waitForControl(data.coda);
+                        timer = setTimeout("ping()",3000);
+                        return;
+                }
+		msg = "Tempo a disposizione terminato!";
+        }
+	alert(msg);
+        disableControl();
+}
+
+function enableControl() {
+	//jQuery('#statusmsg').html("Usa i comandi in basso per spostare la cam");
+	jQuery('#statusmsg').html("");
+	jQuery('#codamsg').fadeOut("slow");
+	jQuery('#camcontrols').fadeIn("slow");
+}
+
+function disableControl() {
+	jQuery('#statusmsg').html("Clicca per prenotare la cam.<br/>Sar&agrave; a tua disposizione per 120 secondi.");
+	jQuery('#codamsg').fadeOut("slow");
+        jQuery('#camcontrols').fadeOut("slow");
+	jQuery('#ctrlbttn').removeAttr('disabled');
+}
+
+
+function waitForControl(ordine) {
+	if(ordine<=0)
+		return;
+	var msg = "La cam attualmente &egrave; impegnata. Sei stato prenotato e messo in coda.<br/>Numero di utenti in coda davanti a te: " + ordine;
+	jQuery('#codamsg').html(msg);
+}
+
+
+function showOldPlayer(id,json){
+	var video = document.getElementById(id);
+	if(Hls.isSupported()){
+		var hls = new Hls();
+		hls.loadSource(json.streaming.hls[0]);
+		hls.attachMedia(video);
+		hls.on(Hls.Events.MANIFEST_PARSED,function() {
+			video.play();
+		});
+	}else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+		video.src = json.streaming.hls[0];
+		video.addEventListener('canplay',function() {
+			video.play();
+		});
+	}
+	if(json.ptz == false){
+		document.getElementById('control').style.display = 'none';
+	}
+}
